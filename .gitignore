@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+coverage/
+server.js
+
+# Logs & OS files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Environment variables & secrets (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+
+# Firebase local configs & service accounts
+firebase-applet-config.json
+firebase_applet_config.xml
+*serviceAccountKey*.json
+
+# Drizzle local artifacts & IDE folders
+drizzle/
+.vscode/
+.idea/

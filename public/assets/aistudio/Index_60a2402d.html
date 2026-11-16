@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --tinta:#0f172a; --tinta-2:#334155; --tinta-3:#64748b;
+      --azul:#1d4ed8; --azul-esc:#172554; --azul-claro:#eff6ff;
+      --verde:#047857; --ambar:#b45309; --vermelho:#b91c1c;
+      --papel:#eef2f7; --card:#ffffff; --linha:#dde3ec; --linha-forte:#c3ccda;
+      --raio:12px;
+      --ui:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+      --doc:Georgia,'Times New Roman',serif;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{font-family:var(--ui);background:var(--papel);color:var(--tinta);font-size:15px;line-height:1.5;}
+    .container{max-width:940px;margin:0 auto;padding:20px 14px 80px;}
+    .card{background:var(--card);border:1px solid var(--linha);border-radius:var(--raio);padding:22px;margin-bottom:16px;}
+    h1{font-size:22px;margin:0 0 6px;color:var(--azul-esc);letter-spacing:-.2px;}
+    h2{font-size:19px;margin:0 0 10px;color:var(--azul-esc);}
+    h3{font-size:16px;margin:0 0 8px;}
+    h4{font-family:var(--doc);font-size:16px;margin:0 0 8px;color:var(--azul-esc);}
+    h5{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--tinta-3);margin:0 0 6px;}
+    p{margin:0 0 10px;}
+    .sub{color:var(--tinta-3);font-size:14px;}
+    a{color:var(--azul);}
+
+    /* ---------- formulários ---------- */
+    label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px;color:var(--tinta-2);}
+    input[type=text],input[type=password],input[type=number],textarea,select{
+      width:100%;padding:9px 11px;border:1px solid var(--linha-forte);border-radius:8px;
+      font-size:14px;font-family:inherit;color:var(--tinta);background:#fff;
+    }
+    textarea{resize:vertical;line-height:1.5;min-height:44px;}
+    input:focus,textarea:focus,select:focus{outline:2px solid var(--azul);outline-offset:1px;border-color:var(--azul);}
+    button{
+      background:var(--azul);color:#fff;border:none;padding:11px 20px;border-radius:8px;font-size:15px;
+      font-weight:600;cursor:pointer;font-family:inherit;
+    }
+    button:hover{background:var(--azul-esc);}
+    button:disabled{background:#94a3b8;cursor:not-allowed;}
+    button.ghost{background:transparent;color:var(--azul);border:1px solid var(--linha-forte);font-weight:600;}
+    button.ghost:hover{background:var(--azul-claro);}
+    button.mini{padding:6px 12px;font-size:13px;border-radius:7px;}
+    button.icone{background:transparent;color:var(--tinta-3);padding:4px 8px;font-size:18px;line-height:1;}
+    button.icone:hover{background:#fee2e2;color:var(--vermelho);}
+    .erro{color:var(--vermelho);font-size:13px;margin-top:10px;}
+    .hidden{display:none !important;}
+    .centro{text-align:center;}
+
+    /* ---------- login ---------- */
+    #tela-login{max-width:420px;margin:8vh auto 0;}
+    .marca{font-family:var(--doc);font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--tinta-3);margin-bottom:10px;}
+
+    /* ---------- lista de exames ---------- */
+    .exame-item{border:1px solid var(--linha);border-radius:10px;padding:16px;margin-bottom:12px;
+      display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
+    .badge{font-size:12px;padding:4px 11px;border-radius:20px;font-weight:700;display:inline-block;}
+    .badge.feito{background:#d1fae5;color:#065f46;}
+
+    /* ---------- barra fixa ---------- */
+    #barra{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.97);border-bottom:1px solid var(--linha);
+      backdrop-filter:blur(6px);margin:-20px -14px 16px;padding:10px 14px;}
+    #barra .linha1{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;}
+    #barra .titulo{font-weight:700;font-size:14px;color:var(--azul-esc);}
+    .relogio{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;padding:4px 10px;border-radius:8px;
+      background:var(--azul-claro);color:var(--azul-esc);}
+    .relogio.alerta{background:#fee2e2;color:var(--vermelho);}
+    .progresso{height:5px;background:var(--linha);border-radius:99px;margin-top:8px;overflow:hidden;}
+    .progresso > i{display:block;height:100%;width:0;background:var(--azul);transition:width .25s;}
+    .navpartes{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;}
+    .navpartes button{background:#fff;border:1px solid var(--linha-forte);color:var(--tinta-2);
+      font-size:12px;font-weight:700;padding:5px 11px;border-radius:99px;white-space:nowrap;}
+    .navpartes button:hover{background:var(--azul-claro);color:var(--azul-esc);border-color:var(--azul);}
+
+    /* ---------- conteúdo da prova ---------- */
+    .doc{font-family:var(--doc);font-size:15.5px;line-height:1.62;color:#1b2434;}
+    .doc ol{margin:6px 0 0 18px;padding:0;}
+    .doc li{margin-bottom:3px;}
+    .parte{margin-bottom:16px;}
+    .parte-cab{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--azul-esc);padding-bottom:8px;margin-bottom:14px;}
+    .parte-num{font-family:var(--doc);font-size:30px;font-weight:700;color:var(--azul-esc);line-height:1;}
+    .parte-nome{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--tinta-3);font-weight:700;}
+    .parte-tit{font-size:18px;font-weight:700;color:var(--azul-esc);}
+    table.dados{width:100%;border-collapse:collapse;margin:10px 0 12px;font-family:var(--ui);font-size:13.5px;}
+    table.dados th,table.dados td{border:1px solid var(--linha);padding:7px 10px;text-align:left;}
+    table.dados thead th{background:#f8fafc;font-weight:700;color:var(--tinta-2);}
+    table.dados tbody th{background:#f8fafc;font-weight:700;width:110px;}
+    .duas-colunas{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .formula{font-family:var(--doc);font-size:18px;text-align:center;background:#f8fafc;border:1px dashed var(--linha-forte);
+      border-radius:8px;padding:10px;margin:8px 0;}
+    .destaque{border-left:4px solid var(--ambar);background:#fffbeb;padding:10px 14px;border-radius:0 8px 8px 0;font-family:var(--doc);}
+    .valor-parte{font-family:var(--ui);font-size:12px;font-weight:700;background:var(--azul-claro);color:var(--azul-esc);
+      padding:2px 9px;border-radius:99px;}
+
+    .questao{border:1px solid var(--linha);border-radius:var(--raio);padding:0;margin-bottom:14px;overflow:hidden;}
+    .questao > .cab{background:#f8fafc;border-bottom:1px solid var(--linha);padding:10px 16px;font-weight:700;color:var(--azul-esc);}
+    .item{padding:16px;border-bottom:1px solid #eef1f6;}
+    .item:last-child{border-bottom:none;}
+    .item-cab{display:flex;gap:8px;align-items:baseline;margin-bottom:10px;}
+    .alinea{font-weight:700;color:var(--azul);min-width:24px;}
+    .enunciado{font-family:var(--doc);font-size:15.5px;flex:1;}
+    .pontos{font-size:11.5px;font-weight:700;color:var(--tinta-3);background:#f1f5f9;border-radius:99px;padding:3px 9px;white-space:nowrap;}
+    .legenda{font-size:12.5px;color:var(--tinta-3);margin-top:8px;}
+
+    /* ---------- quadros de resposta ---------- */
+    .tab-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:10px;}
+    table.resp{width:100%;border-collapse:collapse;min-width:520px;}
+    table.resp th{background:#f8fafc;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--tinta-2);
+      padding:8px 10px;text-align:left;border-bottom:1px solid var(--linha);white-space:nowrap;}
+    table.resp td{padding:6px 8px;border-bottom:1px solid #eef1f6;vertical-align:top;}
+    table.resp tr:last-child td{border-bottom:none;}
+    table.resp td input,table.resp td textarea,table.resp td select{font-size:13.5px;padding:7px 9px;}
+    .cel-bloqueada{font-weight:600;font-size:13.5px;color:var(--tinta-2);padding-top:12px;}
+    .cel-produto{font-weight:800;font-size:16px;color:var(--azul-esc);text-align:center;padding-top:10px;
+      font-variant-numeric:tabular-nums;}
+    .acoes-tab{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;}
+
+    /* SWOT */
+    .swot{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .quad{border:1px solid var(--linha);border-radius:10px;padding:12px;}
+    .quad.verde{border-top:4px solid var(--verde);}
+    .quad.vermelho{border-top:4px solid var(--vermelho);}
+    .quad.azul{border-top:4px solid var(--azul);}
+    .quad.laranja{border-top:4px solid var(--ambar);}
+    .quad h6{margin:0;font-size:14px;}
+    .quad .qsub{font-size:11px;color:var(--tinta-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+    .quad .linha-item{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+
+    /* SMART */
+    .smart-linha{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+    .smart-letra{width:34px;height:34px;flex:0 0 34px;border-radius:9px;background:var(--azul-esc);color:#fff;
+      display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;}
+    .smart-corpo{flex:1;}
+    .smart-corpo .rot{font-weight:700;font-size:13px;}
+    .smart-corpo .dica{font-size:12px;color:var(--tinta-3);margin-bottom:4px;}
+
+    /* escolha */
+    .opcoes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+    .opcao{border:1px solid var(--linha-forte);border-radius:99px;padding:7px 16px;cursor:pointer;font-weight:700;
+      font-size:14px;color:var(--tinta-2);background:#fff;user-select:none;}
+    .opcao.activa{background:var(--azul);border-color:var(--azul);color:#fff;}
+
+    /* PERT */
+    .pert-tela{border:1px solid var(--linha);border-radius:10px;background:
+      linear-gradient(0deg,rgba(29,78,216,.03),rgba(29,78,216,.03)),#fff;overflow-x:auto;margin-top:12px;}
+    .pert-tela svg{display:block;}
+
+    .pert-inner{position:relative;}
+    .pert-inner input.ev-campo{position:absolute;width:48px;height:22px;padding:0;text-align:center;
+      border:none;background:transparent;font-size:13px;font-weight:700;font-family:Georgia,serif;
+      color:var(--vermelho);border-radius:4px;}
+    .pert-inner input.ev-campo:hover{background:#f8fafc;}
+    .pert-inner input.ev-campo:focus{outline:2px solid var(--azul);background:#fff;}
+    .arco-act{cursor:pointer;}
+    .arco-act:hover text{fill:var(--azul);}
+    .pert-nota{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--tinta-3);margin-top:8px;}
+    .chip-critico{background:#fef2f2;color:var(--vermelho);border:1px solid #fecaca;border-radius:99px;padding:3px 10px;font-weight:700;}
+    .caminho-marcado{font-family:var(--doc);font-size:16px;font-weight:700;color:var(--vermelho);}
+    .aviso{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:8px 12px;border-radius:8px;font-size:13px;margin-top:8px;}
+    .nodo{cursor:pointer;}
+
+    /* rodapé de submissão */
+    .rodape{position:sticky;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--linha);
+      margin:0 -14px;padding:12px 14px;display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+
+    /* resultado */
+    .nota-grande{font-size:64px;font-weight:800;text-align:center;margin:6px 0;font-variant-numeric:tabular-nums;}
+    .nota-grande.aprovado{color:var(--verde);}
+    .nota-grande.medio{color:var(--ambar);}
+    .nota-grande.reprovado{color:var(--vermelho);}
+
+    .nota-prazo{background:var(--azul-claro);border:1px solid #bfdbfe;color:var(--azul-esc);
+      border-radius:8px;padding:9px 13px;font-size:13.5px;font-weight:600;margin-bottom:14px;}
+    .nota-prazo.terminado{background:#fef2f2;border-color:#fecaca;color:var(--vermelho);}
+    .nota-prazo:empty{display:none;}
+    .badge.expirado{background:#fee2e2;color:var(--vermelho);}
+    table.resp.resultado td{font-size:13.5px;vertical-align:middle;}
+    td.pontos-cel{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--tinta-2);}
+    td.pontos-cel.cheio{color:var(--verde);}
+    td.pontos-cel.zero{color:var(--vermelho);}
+    #detalhe-resultado{margin-top:24px;}
+    .loading{text-align:center;color:var(--tinta-3);padding:40px 24px;}
+    .spinner{width:26px;height:26px;border:3px solid var(--linha);border-top-color:var(--azul);border-radius:50%;
+      margin:0 auto 12px;animation:gira .8s linear infinite;}
+    @keyframes gira{to{transform:rotate(360deg);}}
+    .fita-ensaio{background:#ecfdf5;color:#065f46;text-align:center;font-size:12.5px;font-weight:700;padding:6px;
+      border-bottom:1px solid #a7f3d0;}
+    .exame-item.ensaio{border-style:dashed;background:#f8fefb;}
+    .badge.agendada{background:#e0e7ff;color:#3730a3;}
+    .nota-prazo.neutro{background:#f8fafc;border-color:var(--linha);color:var(--tinta-2);}
+    .fita-demo{background:#fef3c7;color:#92400e;text-align:center;font-size:12.5px;font-weight:700;padding:6px;}
+
+    @media (max-width:760px){
+      .duas-colunas{grid-template-columns:1fr;}
+      .swot{grid-template-columns:1fr;}
+      table.resp{min-width:0;}
+      table.resp thead{display:none;}
+      table.resp tr{display:block;border-bottom:1px solid var(--linha);padding:10px 4px;}
+      table.resp tr:last-child{border-bottom:none;}
+      table.resp td{display:block;border:none;padding:5px 8px;}
+      table.resp td::before{content:attr(data-rotulo);display:block;font-size:11px;font-weight:700;
+        text-transform:uppercase;letter-spacing:.4px;color:var(--tinta-3);margin-bottom:3px;}
+      .cel-produto{text-align:left;}
+    }
+    @media print{
+      #barra,.rodape,button{display:none !important;}
+      body{background:#fff;}
+      .card{border:none;}
+    }
+  </style>
+</head>
+<body>
+<div id="fita-demo" class="fita-demo hidden">Modo de demonstração — as respostas não são guardadas</div>
+<div id="fita-ensaio" class="fita-ensaio hidden">Ambiente de ensaio — treino livre, o resultado não conta para a avaliação</div>
+<div class="container">
+
+  <!-- ================= LOGIN ================= -->
+  <div class="card" id="tela-login">
+    <div class="marca">Sistema de Provas</div>
+    <h1>Entrar na prova</h1>
+    <p class="sub">Introduza os dados de acesso fornecidos pelo docente.</p>
+    <label for="in-usuario">Utilizador</label>
+    <input type="text" id="in-usuario" autocomplete="username" placeholder="ex.: aluno1">
+    <label for="in-senha">Senha</label>
+    <input type="password" id="in-senha" autocomplete="current-password" placeholder="••••">
+    <button style="margin-top:18px;width:100%" onclick="fazerLogin()">Entrar</button>
+    <div class="erro hidden" id="erro-login"></div>
+  </div>
+
+  <!-- ================= LISTA DE EXAMES ================= -->
+  <div class="card hidden" id="tela-exames">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <h2 id="saudacao">Olá!</h2>
+      <button class="ghost mini" onclick="location.reload()">Sair</button>
+    </div>
+    <p class="sub">Escolha a prova que pretende realizar.</p>
+    <div id="aviso-prazo" class="nota-prazo"></div>
+    <div id="lista-exames"></div>
+  </div>
+
+  <!-- ================= PROVA ================= -->
+  <div class="hidden" id="tela-prova">
+    <div id="barra">
+      <div class="linha1">
+        <span class="titulo" id="titulo-prova"></span>
+        <span style="display:flex;gap:10px;align-items:center;">
+          <span class="sub" id="contador-itens">0 / 0 respondidas</span>
+          <span class="relogio hidden" id="relogio">--:--</span>
+        </span>
+      </div>
+      <div class="progresso"><i id="barra-progresso"></i></div>
+      <div class="navpartes" id="nav-partes"></div>
+    </div>
+
+    <div class="card doc" id="contexto-exame"></div>
+    <div id="partes-container"></div>
+
+    <div class="rodape">
+      <span class="sub" id="estado-guardado">Rascunho guardado automaticamente neste dispositivo.</span>
+      <button onclick="confirmarSubmissao()" id="btn-submeter">Terminar e submeter prova</button>
+    </div>
+    <div class="erro hidden" id="erro-prova"></div>
+  </div>
+
+  <!-- ================= RESULTADO ================= -->
+  <div class="card hidden" id="tela-resultado">
+    <h2 class="centro" id="titulo-resultado">Prova submetida</h2>
+    <div class="nota-grande" id="nota-final">--</div>
+    <p class="centro sub" id="nota-detalhe"></p>
+    <div id="detalhe-resultado"></div>
+    <div class="centro" style="margin-top:18px"><button onclick="location.reload()">Voltar ao início</button></div>
+    <pre id="resumo-demo" class="hidden" style="white-space:pre-wrap;font-size:12px;background:#f8fafc;padding:14px;border-radius:8px;margin-top:18px;"></pre>
+  </div>
+
+  <div class="loading hidden" id="loading"><div class="spinner"></div><span id="loading-texto">A processar…</span></div>
+</div>
+
+<script>
+/* =======================================================================
+   ESTADO
+   ======================================================================= */
+var TOKEN = null, ATTEMPT_ID = null, EXAME_ATUAL = null;
+var DEF = null;                 // definição da prova recebida do servidor
+var ITENS = [];                 // lista plana de itens
+var RESP = {};                  // id do item -> objecto de estado
+var CHAVE_RASCUNHO = null;
+var TEMPO_FIM = null, TIMER = null, ENSAIO = false;
+var DEMO = (typeof google === 'undefined' || !google.script || !google.script.run);
+
+/* =======================================================================
+   CAMADA DE SERVIDOR (real ou demonstração)
+   ======================================================================= */
+var Servidor = {
+  login: function(u, s, ok, falha){
+    if(DEMO){ return ok({ ok:true, token:'demo', nome:'Aluno de Demonstração', studentId:'DEMO',
+      janelaIniciada:false, segundosRestantes:null, expirado:false, janelaMinutos:180 }); }
+    google.script.run.withSuccessHandler(ok).withFailureHandler(falha).login(u, s);
+  },
+  exames: function(ok, falha){
+    if(DEMO){
+      return ok({ ok:true, janelaIniciada:false, segundosRestantes:null, janelaMinutos:180,
+        exames: window.__PROVA_DEMO__.map(function(d){
+          return { examId:d.examId, titulo:d.titulo, descricao:d.descricao,
+                   ensaio: d.tipo === 'ensaio', estado:'disponivel',
+                   data:d.disponivelEm || '', hora:d.horaInicio || '' };
+        }) });
+    }
+    google.script.run.withSuccessHandler(ok).withFailureHandler(falha).getExamesDisponiveis(TOKEN);
+  },
+  iniciar: function(examId, ok, falha){
+    if(DEMO){
+      var d = window.__PROVA_DEMO__.filter(function(x){ return x.examId === examId; })[0];
+      return ok({ ok:true, jaConcluido:false, ensaio: d.tipo === 'ensaio', attemptId:'demo',
+                  definicao:d, segundosRestantes:(d.tempoLimiteMin || 180)*60 });
+    }
+    google.script.run.withSuccessHandler(ok).withFailureHandler(falha).iniciarTentativa(TOKEN, examId);
+  },
+  submeter: function(respostas, ok, falha){
+    if(DEMO){
+      var txt = ITENS.map(function(it){
+        return '■ ' + it.id + ' — ' + it.enunciado + '\n' + (respostas[it.id].texto || '(sem resposta)');
+      }).join('\n\n');
+      return ok({ ok:true, demo:true, resumo:txt });
+    }
+    google.script.run.withSuccessHandler(ok).withFailureHandler(falha)
+      .submeterProva(TOKEN, ATTEMPT_ID, EXAME_ATUAL, respostas);
+  }
+};
+
+/* =======================================================================
+   UTILITÁRIOS DE DOM
+   ======================================================================= */
+function el(tag, cls, texto){
+  var n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(texto !== undefined && texto !== null) n.textContent = texto;
+  return n;
+}
+function q(id){ return document.getElementById(id); }
+function mostrar(id){
+  ['tela-login','tela-exames','tela-prova','tela-resultado','loading'].forEach(function(x){
+    q(x).classList.add('hidden');
+  });
+  q(id).classList.remove('hidden');
+}
+function crescer(ta){ ta.style.height='auto'; ta.style.height=(ta.scrollHeight+2)+'px'; }
+function limpar(s){ return (s===null||s===undefined) ? '' : String(s).trim(); }
+
+/* =======================================================================
+   LOGIN E LISTA DE EXAMES
+   ======================================================================= */
+function fazerLogin(){
+  var usuario = q('in-usuario').value.trim();
+  var senha = q('in-senha').value.trim();
+  var erroEl = q('erro-login');
+  erroEl.classList.add('hidden');
+  if(!usuario || !senha){
+    erroEl.textContent = 'Indique o utilizador e a senha para continuar.';
+    erroEl.classList.remove('hidden'); return;
+  }
+  mostrar('loading');
+  Servidor.login(usuario, senha, function(res){
+    if(!res.ok){
+      mostrar('tela-login');
+      erroEl.textContent = res.erro; erroEl.classList.remove('hidden'); return;
+    }
+    TOKEN = res.token;
+    window.__ALUNO__ = res.studentId;
+    q('saudacao').textContent = 'Olá, ' + res.nome;
+    carregarExames();
+  }, erroGenerico);
+}
+
+function carregarExames(){
+  mostrar('loading');
+  Servidor.exames(function(res){
+    if(!res.ok){ alert(res.erro); location.reload(); return; }
+    var aviso = q('aviso-prazo');
+    if(!res.janelaIniciada){
+      aviso.className = 'nota-prazo neutro';
+      aviso.textContent = 'O seu tempo de prova (' + Math.round(res.janelaMinutos/60) +
+        ' horas) só começa a contar no dia da prova oficial. Até lá pode treinar à vontade no ensaio.';
+    } else if(res.segundosRestantes > 0){
+      aviso.className = 'nota-prazo';
+      aviso.textContent = 'Tempo restante do seu acesso à prova oficial: ' + textoDuracao(res.segundosRestantes) +
+        '. O relógio conta desde o primeiro login do dia da prova e não pára.';
+    } else {
+      aviso.className = 'nota-prazo terminado';
+      aviso.textContent = 'O seu período de acesso à prova oficial terminou.';
+    }
+
+    var container = q('lista-exames');
+    container.innerHTML = '';
+    res.exames.forEach(function(ex){
+      var div = el('div','exame-item' + (ex.ensaio ? ' ensaio' : ''));
+      var info = el('div');
+      var titulo = el('div', null, ex.titulo); titulo.style.fontWeight = '700';
+      info.appendChild(titulo);
+      info.appendChild(el('div','sub', ex.descricao || ''));
+      div.appendChild(info);
+
+      var accao = el('div');
+      if(ex.estado === 'concluida'){
+        accao.appendChild(el('span','badge feito','Concluída — ' + ex.nota20 + '/20'));
+      } else if(ex.estado === 'agendada'){
+        accao.appendChild(el('span','badge agendada','Abre a ' + dataPT(ex.data) +
+          (ex.hora && ex.hora !== '00:00' ? (' às ' + ex.hora) : '')));
+      } else if(ex.estado === 'encerrada'){
+        accao.appendChild(el('span','badge expirado','Período encerrado'));
+      } else if(ex.estado === 'expirada'){
+        accao.appendChild(el('span','badge expirado','Prazo terminado'));
+      } else {
+        var btn = el('button', ex.ensaio ? 'ghost' : null, ex.ensaio ? 'Começar ensaio' : 'Iniciar prova');
+        btn.onclick = function(){ iniciarProva(ex.examId); };
+        accao.appendChild(btn);
+      }
+      div.appendChild(accao);
+      container.appendChild(div);
+    });
+    mostrar('tela-exames');
+  }, erroGenerico);
+}
+
+function dataPT(iso){
+  if(!iso) return '';
+  var p = iso.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+function textoDuracao(segundos){
+  var h = Math.floor(segundos/3600), m = Math.floor((segundos%3600)/60);
+  if(h > 0) return h + 'h' + (m<10?'0':'') + m;
+  return m + ' minutos';
+}
+
+/* =======================================================================
+   ARRANQUE DA PROVA
+   ======================================================================= */
+function iniciarProva(examId){
+  mostrar('loading');
+  q('loading-texto').textContent = 'A carregar a prova…';
+  EXAME_ATUAL = examId;
+  Servidor.iniciar(examId, function(res){
+    if(!res.ok){
+      if(res.expirado){ alert(res.erro); carregarExames(); return; }
+      alert(res.erro); carregarExames(); return;
+    }
+    if(res.jaConcluido){ mostrarResultado({ nota20: res.nota20 }); return; }
+    ATTEMPT_ID = res.attemptId;
+    ENSAIO = !!res.ensaio;
+    DEF = res.definicao;
+    q('fita-ensaio').classList.toggle('hidden', !ENSAIO);
+    CHAVE_RASCUNHO = 'prova:' + examId + ':' + (window.__ALUNO__ || 'x');
+    construirProva(lerRascunho());
+    arrancarRelogio(res.segundosRestantes);
+    mostrar('tela-prova');
+    window.scrollTo(0,0);
+  }, erroGenerico);
+}
+
+function construirProva(guardados){
+  q('titulo-prova').textContent = DEF.titulo;
+  q('contexto-exame').innerHTML = DEF.contextoHtml || '';
+  var cont = q('partes-container');
+  cont.innerHTML = '';
+  var nav = q('nav-partes');
+  nav.innerHTML = '';
+  ITENS = [];
+
+  DEF.partes.forEach(function(parte){
+    var secao = el('section','card parte');
+    secao.id = 'parte-' + parte.parte;
+
+    var cab = el('div','parte-cab');
+    cab.appendChild(el('span','parte-num', parte.parte));
+    var bloco = el('div');
+    bloco.appendChild(el('div','parte-nome','Parte ' + parte.parte));
+    bloco.appendChild(el('div','parte-tit', parte.titulo));
+    cab.appendChild(bloco);
+    secao.appendChild(cab);
+
+    if(parte.contextoHtml){
+      var ctx = el('div','doc');
+      ctx.innerHTML = parte.contextoHtml;
+      secao.appendChild(ctx);
+    }
+
+    parte.questoes.forEach(function(questao){
+      var qbox = el('div','questao');
+      qbox.appendChild(el('div','cab', questao.numero));
+      questao.itens.forEach(function(item){
+        ITENS.push(item);
+        qbox.appendChild(construirItem(item, guardados));
+      });
+      secao.appendChild(qbox);
+    });
+
+    cont.appendChild(secao);
+
+    var btn = el('button', null, 'Parte ' + parte.parte);
+    btn.onclick = function(){ secao.scrollIntoView({behavior:'smooth', block:'start'}); };
+    nav.appendChild(btn);
+  });
+
+  actualizarProgresso();
+}
+
+function construirItem(item, guardados){
+  var box = el('div','item');
+  box.id = 'item-' + item.id;
+  var cab = el('div','item-cab');
+  if(item.alinea) cab.appendChild(el('span','alinea', item.alinea));
+  cab.appendChild(el('span','enunciado', item.enunciado));
+  cab.appendChild(el('span','pontos', item.pontos + (item.pontos === 1 ? ' valor' : ' valores')));
+  box.appendChild(cab);
+
+  RESP[item.id] = (guardados && guardados[item.id]) ? guardados[item.id] : estadoInicial(item);
+  var construtor = WIDGETS[item.widget] || WIDGETS.textarea;
+  box.appendChild(construtor(item, RESP[item.id]));
+
+  if(item.config && item.config.legenda){
+    box.appendChild(el('div','legenda', item.config.legenda));
+  }
+  preencherCampos(box, item, RESP[item.id]);
+  return box;
+}
+
+/* =======================================================================
+   ESTADO INICIAL POR TIPO DE CAMPO
+   ======================================================================= */
+function clonar(o){ return JSON.parse(JSON.stringify(o)); }
+
+function estadoInicial(item){
+  var c = item.config || {};
+  switch(item.widget){
+    case 'tabela':
+      return { linhas: (c.linhas || [{}]).map(function(l){ return clonar(l); }) };
+    case 'swot':
+      var linhas = [];
+      (c.quadrantes||[]).forEach(function(qd){
+        for(var i=0;i<(qd.itens||3);i++){ linhas.push({ grupo: qd.key, item: '' }); }
+      });
+      return { linhas: linhas };
+    case 'escolha':  return { escolha:'', justificacao:'' };
+    case 'calculo':  return { calculo:'', valor:'' };
+    case 'smart':
+      var e = { meta:'' };
+      (c.campos||[]).forEach(function(cp){ e[cp.key] = ''; });
+      return e;
+    case 'pert':
+      return { atividades: (c.atividades||[]).map(function(a){ return clonar(a); }), caminho: [], eventos: {} };
+    default:
+      return { valor:'' };
+  }
+}
+
+/* =======================================================================
+   CAMPOS (WIDGETS)
+   ======================================================================= */
+var WIDGETS = {};
+
+/* --- texto simples --- */
+WIDGETS.texto = function(item, estado){
+  var wrap = el('div');
+  var inp = el('input'); inp.type='text';
+  inp.placeholder = (item.config && item.config.placeholder) || 'Resposta';
+  inp.oninput = function(){ estado.valor = inp.value; tocou(); };
+  inp.setAttribute('data-campo', item.id);
+  wrap.appendChild(inp);
+  if(item.config && item.config.usarCaminhoMarcado){
+    var b = el('button','ghost mini','Usar o caminho marcado no diagrama');
+    b.style.marginTop = '8px';
+    b.onclick = function(){
+      var fonte = RESP[item.config.usarCaminhoMarcado];
+      if(!fonte || !fonte.caminho || !fonte.caminho.length){
+        alert('Ainda não marcou nenhuma actividade no diagrama da rede PERT.'); return;
+      }
+      inp.value = fonte.caminho.join(' – ');
+      estado.valor = inp.value; tocou();
+    };
+    wrap.appendChild(b);
+  }
+  return wrap;
+};
+
+/* --- número --- */
+WIDGETS.numero = function(item, estado){
+  var wrap = el('div');
+  wrap.style.display='flex'; wrap.style.alignItems='center'; wrap.style.gap='10px';
+  var inp = el('input'); inp.type='number'; inp.step='any'; inp.style.maxWidth='180px';
+  inp.oninput = function(){ estado.valor = inp.value; tocou(); };
+  wrap.appendChild(inp);
+  if(item.config && item.config.sufixo) wrap.appendChild(el('span','sub', item.config.sufixo));
+  return wrap;
+};
+
+/* --- texto longo --- */
+WIDGETS.textarea = function(item, estado){
+  var ta = el('textarea');
+  ta.rows = (item.config && item.config.linhas) || 4;
+  ta.placeholder = (item.config && item.config.placeholder) || 'Escreva a sua resposta…';
+  ta.oninput = function(){ estado.valor = ta.value; crescer(ta); tocou(); };
+  return ta;
+};
+
+/* --- cálculo (memória + resultado) --- */
+WIDGETS.calculo = function(item, estado){
+  var c = item.config || {};
+  var wrap = el('div');
+  wrap.appendChild(el('label', null, c.rotuloCalculo || 'Cálculo'));
+  var ta = el('textarea'); ta.rows = c.linhas || 3;
+  ta.placeholder = c.placeholderCalculo || '';
+  ta.oninput = function(){ estado.calculo = ta.value; crescer(ta); tocou(); };
+  wrap.appendChild(ta);
+  wrap.appendChild(el('label', null, c.rotuloResultado || 'Resultado'));
+  var linha = el('div'); linha.style.display='flex'; linha.style.gap='10px'; linha.style.alignItems='center';
+  var inp = el('input'); inp.type='number'; inp.step='any'; inp.style.maxWidth='200px';
+  inp.oninput = function(){ estado.valor = inp.value; tocou(); };
+  linha.appendChild(inp);
+  if(c.sufixo) linha.appendChild(el('span','sub', c.sufixo));
+  wrap.appendChild(linha);
+  return wrap;
+};
+
+/* --- escolha + justificação --- */
+WIDGETS.escolha = function(item, estado){
+  var c = item.config || {};
+  var wrap = el('div');
+  wrap.appendChild(el('label', null, c.rotuloEscolha || 'Escolha'));
+  var caixa = el('div','opcoes');
+  (c.opcoes||[]).forEach(function(op){
+    var chip = el('div','opcao', op);
+    chip.onclick = function(){
+      estado.escolha = op;
+      caixa.querySelectorAll('.opcao').forEach(function(x){ x.classList.remove('activa'); });
+      chip.classList.add('activa'); tocou();
+    };
+    chip.setAttribute('data-op', op);
+    caixa.appendChild(chip);
+  });
+  wrap.appendChild(caixa);
+  wrap.appendChild(el('label', null, c.rotuloJustificacao || 'Justificação'));
+  var ta = el('textarea'); ta.rows = c.linhas || 4;
+  ta.oninput = function(){ estado.justificacao = ta.value; crescer(ta); tocou(); };
+  wrap.appendChild(ta);
+  return wrap;
+};
+
+/* --- meta SMART --- */
+WIDGETS.smart = function(item, estado){
+  var c = item.config || {};
+  var wrap = el('div');
+  (c.campos||[]).forEach(function(cp){
+    var linha = el('div','smart-linha');
+    linha.appendChild(el('div','smart-letra', cp.letra));
+    var corpo = el('div','smart-corpo');
+    corpo.appendChild(el('div','rot', cp.label));
+    corpo.appendChild(el('div','dica', cp.dica || ''));
+    var ta = el('textarea'); ta.rows = 2;
+    ta.oninput = function(){ estado[cp.key] = ta.value; crescer(ta); tocou(); };
+    corpo.appendChild(ta);
+    linha.appendChild(corpo);
+    wrap.appendChild(linha);
+  });
+  wrap.appendChild(el('label', null, c.rotuloMeta || 'Redacção final da meta'));
+  var meta = el('textarea'); meta.rows = 3;
+  meta.oninput = function(){ estado.meta = meta.value; crescer(meta); tocou(); };
+  wrap.appendChild(meta);
+  return wrap;
+};
+
+/* --- matriz SWOT --- */
+WIDGETS.swot = function(item, estado){
+  var c = item.config || {};
+  var grelha = el('div','swot');
+  (c.quadrantes||[]).forEach(function(qd){
+    var caixa = el('div','quad ' + (qd.cor||''));
+    caixa.appendChild(el('h6', null, qd.label));
+    caixa.appendChild(el('div','qsub', qd.sub || ''));
+    var lista = el('div');
+    caixa.appendChild(lista);
+
+    function desenhar(){
+      lista.innerHTML = '';
+      estado.linhas.forEach(function(linha, idx){
+        if(linha.grupo !== qd.key) return;
+        var l = el('div','linha-item');
+        var inp = el('input'); inp.type='text'; inp.value = linha.item || '';
+        inp.placeholder = 'Item…';
+        inp.oninput = function(){ linha.item = inp.value; tocou(); };
+        l.appendChild(inp);
+        var rm = el('button','icone','×');
+        rm.title = 'Remover';
+        rm.onclick = function(){ estado.linhas.splice(idx,1); desenhar(); tocou(); };
+        l.appendChild(rm);
+        lista.appendChild(l);
+      });
+      var add = el('button','ghost mini','+ Adicionar');
+      add.onclick = function(){
+        var ultimo = -1;
+        estado.linhas.forEach(function(l,i){ if(l.grupo===qd.key) ultimo = i; });
+        estado.linhas.splice(ultimo+1, 0, { grupo: qd.key, item: '' });
+        desenhar(); tocou();
+      };
+      lista.appendChild(add);
+    }
+    desenhar();
+    grelha.appendChild(caixa);
+  });
+  return grelha;
+};
+
+/* --- quadro dinâmico genérico (5W2H, PESTEL, GUT, estratégias…) --- */
+WIDGETS.tabela = function(item, estado){
+  var c = item.config || {};
+  var colunas = c.colunas || [];
+  var wrap = el('div');
+  var scroll = el('div','tab-wrap');
+  var tabela = el('table','resp');
+
+  var thead = el('thead'); var trh = el('tr');
+  colunas.forEach(function(col){
+    var th = el('th', null, col.label);
+    if(col.largura) th.style.width = col.largura;
+    trh.appendChild(th);
+  });
+  if(c.remover) trh.appendChild(el('th', null, ''));
+  thead.appendChild(trh); tabela.appendChild(thead);
+
+  var tbody = el('tbody'); tabela.appendChild(tbody);
+  scroll.appendChild(tabela); wrap.appendChild(scroll);
+
+  function desenhar(){
+    tbody.innerHTML = '';
+    estado.linhas.forEach(function(linha, idx){
+      var tr = el('tr');
+      var celulasProduto = [];
+      colunas.forEach(function(col){
+        var td = el('td');
+        td.setAttribute('data-rotulo', col.label);
+        if(col.tipo === 'produto'){
+          var span = el('span','cel-produto','—');
+          celulasProduto.push({ col: col, span: span });
+          td.appendChild(span);
+        } else if(col.bloqueado){
+          td.className = 'cel-bloqueada';
+          td.setAttribute('data-rotulo', col.label);
+          td.appendChild(document.createTextNode(linha[col.key] || ''));
+        } else if(col.tipo === 'select'){
+          var sel = el('select');
+          sel.appendChild(el('option', null, '—')).value = '';
+          (col.opcoes||[]).forEach(function(op){
+            var o = el('option', null, op); o.value = op; sel.appendChild(o);
+          });
+          sel.value = linha[col.key] || '';
+          sel.onchange = function(){ linha[col.key] = sel.value; recalcular(); tocou(); };
+          td.appendChild(sel);
+        } else if(col.tipo === 'textarea'){
+          var ta = el('textarea'); ta.rows = 2; ta.value = linha[col.key] || '';
+          ta.oninput = function(){ linha[col.key] = ta.value; crescer(ta); tocou(); };
+          if(ta.value) setTimeout(function(){ crescer(ta); }, 0);
+          td.appendChild(ta);
+        } else {
+          var inp = el('input');
+          inp.type = (col.tipo === 'numero') ? 'number' : 'text';
+          inp.value = linha[col.key] || '';
+          inp.oninput = function(){ linha[col.key] = inp.value; recalcular(); tocou(); };
+          td.appendChild(inp);
+        }
+        tr.appendChild(td);
+      });
+      if(c.remover){
+        var tdx = el('td'); tdx.setAttribute('data-rotulo','');
+        var rm = el('button','icone','×'); rm.title = 'Remover linha';
+        rm.onclick = function(){
+          if(estado.linhas.length <= (c.minLinhas || 1)){ alert('Tem de manter pelo menos ' + (c.minLinhas||1) + ' linha(s).'); return; }
+          estado.linhas.splice(idx,1); desenhar(); tocou();
+        };
+        tdx.appendChild(rm); tr.appendChild(tdx);
+      }
+      function recalcular(){
+        celulasProduto.forEach(function(cp){
+          var p = 1, valido = true;
+          (cp.col.fonte||[]).forEach(function(k){
+            var v = parseFloat(linha[k]);
+            if(isNaN(v)) valido = false; else p *= v;
+          });
+          linha[cp.col.key] = valido ? p : '';
+          cp.span.textContent = valido ? p : '—';
+        });
+      }
+      recalcular();
+      tbody.appendChild(tr);
+    });
+  }
+  desenhar();
+
+  if(c.adicionar){
+    var acoes = el('div','acoes-tab');
+    var add = el('button','ghost mini','+ ' + (c.rotuloAdicionar || 'Adicionar linha'));
+    add.onclick = function(){
+      var nova = {};
+      colunas.forEach(function(col){ if(col.bloqueado) nova[col.key] = ''; });
+      estado.linhas.push(nova); desenhar(); tocou();
+    };
+    acoes.appendChild(add);
+    acoes.appendChild(el('span','sub','Pode acrescentar tantas linhas quantas precisar.'));
+    wrap.appendChild(acoes);
+  }
+  return wrap;
+};
+
+/* =======================================================================
+   REDE PERT — quadro de actividades + diagrama por eventos (AOA)
+   ======================================================================= */
+function lerPrecedencias(txt){
+  var bruto = limpar(txt).toUpperCase();
+  if(!bruto || bruto === '—' || bruto === '-') return [];
+  var res = [];
+  bruto.split(/[,;\/+&]+/).forEach(function(pedaco){
+    var toks = pedaco.replace(/[–-]/g, ' ').split(/\s+/).filter(Boolean);
+    toks.forEach(function(t, i){
+      /* "C e D": o E do meio é conjunção, não actividade.
+         "D e E" ou "E e F": o E das pontas é mesmo a actividade E. */
+      if(t === 'E' && toks.length >= 3 && i > 0 && i < toks.length - 1) return;
+      if(!/^[A-Z0-9]{1,4}$/.test(t)) return;
+      if(res.indexOf(t) === -1) res.push(t);
+    });
+  });
+  return res;
+}
+
+/* Converte a lista de actividades e precedências numa rede de eventos:
+   cada círculo é um evento, cada seta é uma actividade. */
+function construirRedeAOA(lista){
+  var mapa = {}, ordem = [], desconhecidas = [];
+  lista.forEach(function(a){
+    var id = limpar(a.id).toUpperCase();
+    if(!id || mapa[id]) return;
+    mapa[id] = { id:id, desc:limpar(a.descricao), dur:parseFloat(a.duracao), preds:[] };
+    ordem.push(id);
+  });
+  if(!ordem.length) return { vazia:true };
+
+  lista.forEach(function(a){
+    var id = limpar(a.id).toUpperCase();
+    if(!id || !mapa[id]) return;
+    lerPrecedencias(a.precedencias).forEach(function(p){
+      if(mapa[p] && p !== id){ if(mapa[id].preds.indexOf(p) === -1) mapa[id].preds.push(p); }
+      else if(!mapa[p] && desconhecidas.indexOf(p) === -1){ desconhecidas.push(p); }
+    });
+  });
+
+  /* detecção de ciclos */
+  var nivelAct = {}, mudou = true, guarda = 0;
+  ordem.forEach(function(id){ nivelAct[id] = 0; });
+  while(mudou && guarda++ < 300){
+    mudou = false;
+    ordem.forEach(function(id){
+      mapa[id].preds.forEach(function(p){
+        if(nivelAct[p] + 1 > nivelAct[id]){ nivelAct[id] = nivelAct[p] + 1; mudou = true; }
+      });
+    });
+  }
+  if(guarda >= 300) return { ciclo:true, desconhecidas:desconhecidas };
+
+  /* um evento por conjunto distinto de precedências */
+  function chave(arr){ return arr.slice().sort().join(','); }
+  var eventos = [], porChave = {};
+  function novoEvento(k){ var ev = { chave:k, nivel:0 }; eventos.push(ev); return ev; }
+
+  porChave[''] = novoEvento('');
+  ordem.forEach(function(id){
+    var k = chave(mapa[id].preds);
+    if(!porChave[k]) porChave[k] = novoEvento(k);
+  });
+
+  var contem = {};
+  ordem.forEach(function(id){ contem[id] = []; });
+  Object.keys(porChave).forEach(function(k){
+    if(!k) return;
+    k.split(',').forEach(function(p){ if(contem[p]) contem[p].push(k); });
+  });
+
+  var fim = novoEvento('FIM');
+  var arcos = [];
+  ordem.forEach(function(id){
+    var de = porChave[chave(mapa[id].preds)];
+    var destinos = contem[id], para;
+    if(!destinos.length){ para = fim; }
+    else if(destinos.length === 1){ para = porChave[destinos[0]]; }
+    else {
+      para = novoEvento('~' + id);
+      destinos.forEach(function(k){ arcos.push({ de:para, para:porChave[k], dummy:true }); });
+    }
+    arcos.push({ de:de, para:para, id:id, dur:mapa[id].dur, desc:mapa[id].desc });
+  });
+
+  /* níveis dos eventos e numeração */
+  var passos = 0;
+  do{
+    mudou = false;
+    arcos.forEach(function(arc){
+      if(arc.de.nivel + 1 > arc.para.nivel){ arc.para.nivel = arc.de.nivel + 1; mudou = true; }
+    });
+  } while(mudou && passos++ < 300);
+
+  eventos.sort(function(a,b){ return a.nivel - b.nivel; });
+  eventos.forEach(function(ev, i){ ev.numero = i + 1; });
+
+  return { eventos:eventos, arcos:arcos, desconhecidas:desconhecidas, ordemActividades:ordem, nivelAct:nivelAct };
+}
+
+WIDGETS.pert = function(item, estado){
+  var c = item.config || {};
+  var wrap = el('div');
+  if(c.instrucoes) wrap.appendChild(el('p','sub', c.instrucoes));
+  if(!estado.eventos) estado.eventos = {};
+
+  /* --- quadro de actividades --- */
+  var scroll = el('div','tab-wrap');
+  var tabela = el('table','resp');
+  var thead = el('thead'), trh = el('tr');
+  ['Act.','Descrição','Precedências','Duração (dias)',''].forEach(function(t, i){
+    var th = el('th', null, t);
+    if(i===0) th.style.width='70px';
+    if(i===2) th.style.width='130px';
+    if(i===3) th.style.width='110px';
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh); tabela.appendChild(thead);
+  var tbody = el('tbody'); tabela.appendChild(tbody);
+  scroll.appendChild(tabela); wrap.appendChild(scroll);
+
+  var acoes = el('div','acoes-tab');
+  var add = el('button','ghost mini','+ Adicionar actividade');
+  add.onclick = function(){
+    estado.atividades.push({ id:'', descricao:'', precedencias:'', duracao:'' });
+    desenharTabela(); redesenhar(); tocou();
+  };
+  acoes.appendChild(add);
+  acoes.appendChild(el('span','sub','O diagrama constrói-se sozinho a partir das precedências.'));
+  wrap.appendChild(acoes);
+
+  /* --- diagrama --- */
+  var tela = el('div','pert-tela');
+  wrap.appendChild(tela);
+
+  var nota = el('div','pert-nota');
+  nota.appendChild(el('span','chip-critico','Clique numa seta para marcar a actividade como crítica'));
+  var caminhoTxt = el('span','caminho-marcado','');
+  nota.appendChild(caminhoTxt);
+  wrap.appendChild(nota);
+  wrap.appendChild(el('div','legenda','Cada círculo é um evento (o número está por cima). Dentro do círculo pode escrever a data mais cedo, em cima, e a data mais tarde, em baixo. As setas a tracejado são ligações fictícias, sem duração.'));
+
+  var avisos = el('div');
+  wrap.appendChild(avisos);
+
+  function desenharTabela(){
+    tbody.innerHTML = '';
+    estado.atividades.forEach(function(a, idx){
+      var tr = el('tr');
+      function celula(rotulo, chave, tipo){
+        var td = el('td'); td.setAttribute('data-rotulo', rotulo);
+        var inp = el('input'); inp.type = tipo || 'text';
+        inp.value = a[chave] === undefined ? '' : a[chave];
+        inp.oninput = function(){
+          a[chave] = (chave === 'id' || chave === 'precedencias') ? inp.value.toUpperCase() : inp.value;
+          if(chave === 'id' || chave === 'precedencias') inp.value = a[chave];
+          redesenhar(); tocou();
+        };
+        td.appendChild(inp); tr.appendChild(td);
+      }
+      celula('Act.','id','text');
+      celula('Descrição','descricao','text');
+      celula('Precedências','precedencias','text');
+      celula('Duração (dias)','duracao','number');
+      var td = el('td'); td.setAttribute('data-rotulo','');
+      var rm = el('button','icone','×'); rm.title='Remover actividade';
+      rm.onclick = function(){ estado.atividades.splice(idx,1); desenharTabela(); redesenhar(); tocou(); };
+      td.appendChild(rm); tr.appendChild(td);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function redesenhar(){ desenharRede(tela, avisos, caminhoTxt, estado, redesenhar); }
+
+  desenharTabela();
+  redesenhar();
+  return wrap;
+};
+
+/* --- desenho da rede: eventos em círculos, actividades em setas --- */
+function desenharRede(tela, avisos, caminhoTxt, estado, aoClicar){
+  var NS = 'http://www.w3.org/2000/svg';
+  tela.innerHTML = ''; avisos.innerHTML = '';
+
+  var rede = construirRedeAOA(estado.atividades);
+  if(rede.vazia){
+    tela.appendChild(el('div','loading','Lance as actividades no quadro para a rede aparecer.'));
+    caminhoTxt.textContent = '';
+    return;
+  }
+  if(rede.ciclo){
+    avisos.appendChild(el('div','aviso','As precedências formam um ciclo: uma actividade acaba por depender de si própria. Corrija o quadro para a rede poder ser desenhada.'));
+    caminhoTxt.textContent = '';
+    return;
+  }
+  if(rede.desconhecidas.length){
+    avisos.appendChild(el('div','aviso','Precedência indicada mas inexistente no quadro: ' + rede.desconhecidas.join(', ') + '.'));
+  }
+
+  var R = 30, GAPX = 155, GAPY = 40, MARG = 44;
+  var colunas = [];
+  rede.eventos.forEach(function(ev){
+    if(!colunas[ev.nivel]) colunas[ev.nivel] = [];
+    colunas[ev.nivel].push(ev);
+  });
+  var maxLinhas = 1;
+  colunas.forEach(function(col){ if(col && col.length > maxLinhas) maxLinhas = col.length; });
+
+  /* desvio de cada seta: setas paralelas afastam-se e setas que saltam
+     níveis contornam os círculos que ficam pelo caminho */
+  var pares = {}, alterna = 0, maxDesvio = 0;
+  rede.arcos.forEach(function(arc){
+    var k = rede.eventos.indexOf(arc.de) + '>' + rede.eventos.indexOf(arc.para);
+    (pares[k] = pares[k] || []).push(arc);
+  });
+  Object.keys(pares).forEach(function(k){
+    var grupo = pares[k];
+    grupo.forEach(function(arc, i){
+      var salto = arc.para.nivel - arc.de.nivel;
+      var base = (i - (grupo.length-1)/2) * 96;
+      var contorno = salto > 1 ? (salto * 120) * ((alterna++ % 2 === 0) ? 1 : -1) : 0;
+      arc.desvio = base + contorno;
+      maxDesvio = Math.max(maxDesvio, Math.abs(arc.desvio));
+    });
+  });
+  var folgaCima = 0, folgaBaixo = 0;
+  rede.arcos.forEach(function(arc){
+    if(arc.desvio < 0) folgaCima = Math.max(folgaCima, -arc.desvio/2 + 26);
+    if(arc.desvio > 0) folgaBaixo = Math.max(folgaBaixo, arc.desvio/2 + 26);
+  });
+
+  var banda = maxLinhas*(R*2) + (maxLinhas-1)*GAPY;
+  var altura = MARG*2 + folgaCima + folgaBaixo + banda;
+  var largura = MARG*2 + (colunas.length-1)*(R*2 + GAPX) + R*2;
+
+  colunas.forEach(function(col, i){
+    if(!col) return;
+    var alturaCol = col.length*(R*2) + (col.length-1)*GAPY;
+    var y0 = MARG + folgaCima + R + (banda - alturaCol)/2;
+    col.forEach(function(ev, j){
+      ev.x = MARG + R + i*(R*2 + GAPX);
+      ev.y = y0 + j*(R*2 + GAPY);
+    });
+  });
+
+  var interior = el('div','pert-inner');
+  interior.style.width = largura + 'px';
+  interior.style.height = altura + 'px';
+
+  var svg = document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox','0 0 ' + largura + ' ' + altura);
+  svg.setAttribute('width', largura);
+  svg.setAttribute('height', altura);
+
+  var defs = document.createElementNS(NS,'defs');
+  defs.innerHTML =
+    '<marker id="pt-seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">' +
+      '<path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"></path></marker>' +
+    '<marker id="pt-seta-crit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">' +
+      '<path d="M 0 0 L 10 5 L 0 10 z" fill="#b91c1c"></path></marker>';
+  svg.appendChild(defs);
+
+  function critica(id){ return estado.caminho.indexOf(id) !== -1; }
+
+  rede.arcos.forEach(function(arc){
+    var dx = arc.para.x - arc.de.x, dy = arc.para.y - arc.de.y;
+    var comp = Math.sqrt(dx*dx + dy*dy) || 1;
+    var ux = dx/comp, uy = dy/comp;
+    var desvio = arc.desvio || 0;
+    /* a seta arranca e chega ao bordo do círculo, já com a inclinação da curva */
+    var ax = ux - uy*(desvio/comp), ay = uy + ux*(desvio/comp);
+    var an = Math.sqrt(ax*ax + ay*ay) || 1; ax /= an; ay /= an;
+    var bx = ux + uy*(desvio/comp), by = uy - ux*(desvio/comp);
+    var bn = Math.sqrt(bx*bx + by*by) || 1; bx /= bn; by /= bn;
+    var x1 = arc.de.x + ax*R, y1 = arc.de.y + ay*R;
+    var x2 = arc.para.x - bx*(R+7), y2 = arc.para.y - by*(R+7);
+    var cx = (x1+x2)/2 - uy*desvio, cy = (y1+y2)/2 + ux*desvio;
+    var mx = 0.25*x1 + 0.5*cx + 0.25*x2, my = 0.25*y1 + 0.5*cy + 0.25*y2;
+    var caminho = 'M ' + x1 + ' ' + y1 + ' Q ' + cx + ' ' + cy + ' ' + x2 + ' ' + y2;
+    var vermelha = !arc.dummy && critica(arc.id);
+
+    var linha = document.createElementNS(NS,'path');
+    linha.setAttribute('d', caminho);
+    linha.setAttribute('fill','none');
+    linha.setAttribute('stroke', vermelha ? '#b91c1c' : (arc.dummy ? '#94a3b8' : '#64748b'));
+    linha.setAttribute('stroke-width', vermelha ? 2.8 : 1.6);
+    if(arc.dummy) linha.setAttribute('stroke-dasharray','6 5');
+    linha.setAttribute('marker-end', vermelha ? 'url(#pt-seta-crit)' : 'url(#pt-seta)');
+    svg.appendChild(linha);
+
+    if(arc.dummy) return;
+
+    var g = document.createElementNS(NS,'g');
+    g.setAttribute('class','arco-act');
+
+    var alvo = document.createElementNS(NS,'path');
+    alvo.setAttribute('d', caminho);
+    alvo.setAttribute('fill','none');
+    alvo.setAttribute('stroke','transparent');
+    alvo.setAttribute('stroke-width','22');
+    g.appendChild(alvo);
+
+    var letra = document.createElementNS(NS,'text');
+    letra.setAttribute('x', mx); letra.setAttribute('y', my - 8);
+    letra.setAttribute('text-anchor','middle');
+    letra.setAttribute('font-size','19'); letra.setAttribute('font-weight','700');
+    letra.setAttribute('font-family','Georgia, serif');
+    letra.setAttribute('fill', vermelha ? '#b91c1c' : '#172554');
+    letra.textContent = arc.id;
+    g.appendChild(letra);
+
+    var dur = document.createElementNS(NS,'text');
+    dur.setAttribute('x', mx); dur.setAttribute('y', my + 15);
+    dur.setAttribute('text-anchor','middle');
+    dur.setAttribute('font-size','12'); dur.setAttribute('font-style','italic');
+    dur.setAttribute('font-family','Georgia, serif');
+    dur.setAttribute('fill', vermelha ? '#b91c1c' : '#64748b');
+    dur.textContent = isNaN(arc.dur) ? '?' : arc.dur;
+    g.appendChild(dur);
+
+    if(arc.desc){
+      var tt = document.createElementNS(NS,'title');
+      tt.textContent = arc.id + ' — ' + arc.desc;
+      g.appendChild(tt);
+    }
+
+    g.onclick = function(){
+      var i2 = estado.caminho.indexOf(arc.id);
+      if(i2 === -1) estado.caminho.push(arc.id); else estado.caminho.splice(i2,1);
+      tocou(); aoClicar();
+    };
+    svg.appendChild(g);
+  });
+
+  /* eventos */
+  rede.eventos.forEach(function(ev){
+    var c1 = document.createElementNS(NS,'circle');
+    c1.setAttribute('cx', ev.x); c1.setAttribute('cy', ev.y); c1.setAttribute('r', R);
+    c1.setAttribute('fill','#ffffff');
+    c1.setAttribute('stroke','#172554'); c1.setAttribute('stroke-width','1.8');
+    svg.appendChild(c1);
+
+    var div = document.createElementNS(NS,'line');
+    div.setAttribute('x1', ev.x - R); div.setAttribute('y1', ev.y);
+    div.setAttribute('x2', ev.x + R); div.setAttribute('y2', ev.y);
+    div.setAttribute('stroke','#c3ccda'); div.setAttribute('stroke-width','1');
+    svg.appendChild(div);
+
+    var num = document.createElementNS(NS,'text');
+    num.setAttribute('x', ev.x); num.setAttribute('y', ev.y - R - 8);
+    num.setAttribute('text-anchor','middle');
+    num.setAttribute('font-size','12'); num.setAttribute('font-weight','700');
+    num.setAttribute('font-family','Segoe UI, system-ui, sans-serif');
+    num.setAttribute('fill','#64748b');
+    num.textContent = ev.numero;
+    svg.appendChild(num);
+  });
+
+  interior.appendChild(svg);
+
+  /* campos das datas dentro de cada evento */
+  rede.eventos.forEach(function(ev){
+    var guardado = estado.eventos[ev.chave] || { cedo:'', tarde:'' };
+    estado.eventos[ev.chave] = guardado;
+    ['cedo','tarde'].forEach(function(campo, k){
+      var inp = el('input','ev-campo');
+      inp.type = 'text';
+      inp.value = guardado[campo] || '';
+      inp.title = (campo === 'cedo' ? 'Data mais cedo' : 'Data mais tarde') + ' do evento ' + ev.numero;
+      inp.style.left = (ev.x - 24) + 'px';
+      inp.style.top = (ev.y - 24 + k*26) + 'px';
+      inp.oninput = function(){ guardado[campo] = inp.value; tocou(); };
+      interior.appendChild(inp);
+    });
+  });
+
+  tela.appendChild(interior);
+
+  /* sequência marcada, pela ordem das actividades na rede */
+  var marcadas = estado.caminho.filter(function(id){ return rede.ordemActividades.indexOf(id) !== -1; })
+    .sort(function(a,b){ return rede.nivelAct[a] - rede.nivelAct[b]; });
+  estado.caminho = marcadas;
+  caminhoTxt.textContent = marcadas.length ? ('Caminho marcado: ' + marcadas.join(' – ')) : '';
+}
+
+/* =======================================================================
+   SERIALIZAÇÃO DAS RESPOSTAS (texto legível + dados estruturados)
+   ======================================================================= */
+function linhaPreenchida(linha, colunas, padrao){
+  return colunas.some(function(col){
+    if(col.bloqueado || col.tipo === 'produto') return false;
+    var v = limpar(linha[col.key]);
+    if(v === '') return false;
+    /* valores já vindos preenchidos na prova não contam como resposta */
+    if(padrao && padrao[col.key] !== undefined && limpar(padrao[col.key]) === v) return false;
+    return true;
+  });
+}
+
+function serializar(item, estado){
+  var c = item.config || {};
+  switch(item.widget){
+    case 'tabela':
+      var colunas = c.colunas || [];
+      var padroes = c.linhas || [];
+      var linhas = estado.linhas.filter(function(l, i){ return linhaPreenchida(l, colunas, padroes[i]); });
+      if(!linhas.length) return '';
+      return linhas.map(function(l, i){
+        return (i+1) + ') ' + colunas.map(function(col){
+          return col.label + ': ' + (limpar(l[col.key]) || '—');
+        }).join(' | ');
+      }).join('\n');
+
+    case 'swot':
+      var grupos = {};
+      estado.linhas.forEach(function(l){
+        if(!limpar(l.item)) return;
+        (grupos[l.grupo] = grupos[l.grupo] || []).push(limpar(l.item));
+      });
+      var partes = [];
+      (c.quadrantes||[]).forEach(function(qd){
+        if(grupos[qd.key]) partes.push(qd.key.toUpperCase() + ': ' + grupos[qd.key].join('; '));
+      });
+      return partes.join('\n');
+
+    case 'escolha':
+      if(!limpar(estado.escolha) && !limpar(estado.justificacao)) return '';
+      return 'Categoria escolhida: ' + (limpar(estado.escolha) || '—') +
+             '\nJustificação: ' + (limpar(estado.justificacao) || '—');
+
+    case 'calculo':
+      if(!limpar(estado.calculo) && !limpar(estado.valor)) return '';
+      return 'Cálculo: ' + limpar(estado.calculo) + '\nResultado: ' + limpar(estado.valor) +
+             (c.sufixo ? (' ' + c.sufixo) : '');
+
+    case 'smart':
+      var temConteudo = (c.campos||[]).some(function(cp){ return limpar(estado[cp.key]) !== ''; }) || limpar(estado.meta) !== '';
+      if(!temConteudo) return '';
+      var t = (c.campos||[]).map(function(cp){
+        return cp.letra + ' (' + cp.label + '): ' + (limpar(estado[cp.key]) || '—');
+      }).join('\n');
+      if(limpar(estado.meta)) t += '\nMeta final: ' + limpar(estado.meta);
+      return t;
+
+    case 'pert':
+      var acts = estado.atividades.filter(function(a){ return limpar(a.id); });
+      if(!acts.length) return '';
+      var linhasTxt = acts.map(function(a){
+        return a.id.toUpperCase() + ' — ' + (limpar(a.descricao) || 'sem descrição') +
+               ' (precedência: ' + (limpar(a.precedencias) || '—') +
+               '; duração: ' + (limpar(a.duracao) || '?') + ' dias)';
+      }).join('\n');
+      var txt = 'Actividades da rede:\n' + linhasTxt +
+             '\nCaminho marcado no diagrama: ' + (estado.caminho.length ? estado.caminho.join(' – ') : '(nenhum)');
+      var rede = construirRedeAOA(estado.atividades);
+      if(rede.eventos){
+        var datas = rede.eventos.map(function(ev){
+          var d = (estado.eventos || {})[ev.chave] || {};
+          if(!limpar(d.cedo) && !limpar(d.tarde)) return null;
+          return 'Evento ' + ev.numero + ': cedo=' + (limpar(d.cedo)||'—') + ', tarde=' + (limpar(d.tarde)||'—');
+        }).filter(Boolean);
+        if(datas.length) txt += '\nDatas dos eventos: ' + datas.join('; ');
+      }
+      return txt;
+
+    default:
+      return limpar(estado.valor);
+  }
+}
+
+function respondido(item){
+  /* a rede vem com as actividades já lançadas: só conta depois de o caminho ser marcado */
+  if(item.widget === 'pert') return (RESP[item.id].caminho || []).length > 0;
+  return serializar(item, RESP[item.id]) !== '';
+}
+
+/* =======================================================================
+   PROGRESSO, RASCUNHO E RELÓGIO
+   ======================================================================= */
+var guardaTimeout = null;
+function tocou(){
+  actualizarProgresso();
+  clearTimeout(guardaTimeout);
+  guardaTimeout = setTimeout(guardarRascunho, 800);
+}
+
+function actualizarProgresso(){
+  var feitos = ITENS.filter(respondido).length;
+  q('contador-itens').textContent = feitos + ' / ' + ITENS.length + ' respondidas';
+  q('barra-progresso').style.width = (ITENS.length ? (feitos/ITENS.length*100) : 0) + '%';
+}
+
+function guardarRascunho(){
+  if(!CHAVE_RASCUNHO) return;
+  try{
+    localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify(RESP));
+    q('estado-guardado').textContent = 'Rascunho guardado às ' + new Date().toLocaleTimeString('pt-PT').slice(0,5) + '.';
+  }catch(e){
+    q('estado-guardado').textContent = 'Rascunho automático indisponível neste navegador.';
+  }
+}
+
+function lerRascunho(){
+  if(!CHAVE_RASCUNHO) return null;
+  var bruto = null;
+  try{ bruto = localStorage.getItem(CHAVE_RASCUNHO); }catch(e){ return null; }
+  if(!bruto) return null;
+  if(!confirm('Existem respostas guardadas neste dispositivo para esta prova. Quer recuperá-las?')) return null;
+  try{ return JSON.parse(bruto); }catch(e){ return null; }
+}
+
+function preencherCampos(box, item, estado){
+  /* os campos de tabela/swot/pert já são desenhados a partir do estado;
+     faltam apenas os campos simples */
+  var c = item.config || {};
+  if(item.widget === 'texto' || item.widget === 'numero'){
+    var i = box.querySelector('input'); if(i) i.value = estado.valor || '';
+  } else if(item.widget === 'textarea'){
+    var t = box.querySelector('textarea'); if(t){ t.value = estado.valor || ''; crescer(t); }
+  } else if(item.widget === 'calculo'){
+    var ta = box.querySelector('textarea'); if(ta){ ta.value = estado.calculo || ''; crescer(ta); }
+    var n = box.querySelector('input'); if(n) n.value = estado.valor || '';
+  } else if(item.widget === 'escolha'){
+    box.querySelectorAll('.opcao').forEach(function(chip){
+      if(chip.getAttribute('data-op') === estado.escolha) chip.classList.add('activa');
+    });
+    var j = box.querySelector('textarea'); if(j){ j.value = estado.justificacao || ''; crescer(j); }
+  } else if(item.widget === 'smart'){
+    var tas = box.querySelectorAll('textarea');
+    (c.campos||[]).forEach(function(cp, i){ if(tas[i]){ tas[i].value = estado[cp.key] || ''; crescer(tas[i]); } });
+    if(tas[(c.campos||[]).length]){ tas[(c.campos||[]).length].value = estado.meta || ''; }
+  }
+}
+
+function arrancarRelogio(segundos){
+  if(!segundos || segundos <= 0){ return; }
+  TEMPO_FIM = Date.now() + segundos*1000;
+  var r = q('relogio');
+  r.classList.remove('hidden');
+  r.title = 'Tempo restante do seu acesso';
+  function tique(){
+    var falta = Math.max(0, Math.floor((TEMPO_FIM - Date.now())/1000));
+    var h = Math.floor(falta/3600), m = Math.floor((falta%3600)/60), s = falta%60;
+    r.textContent = (h>0 ? (h + ':' + (m<10?'0':'') + m) : ((m<10?'0':'') + m)) + ':' + (s<10?'0':'') + s;
+    if(falta < 15*60) r.classList.add('alerta'); else r.classList.remove('alerta');
+    if(falta === 0){
+      clearInterval(TIMER);
+      alert('O tempo terminou. A prova vai ser submetida com as respostas dadas até agora.');
+      submeter();
+    }
+  }
+  tique();
+  TIMER = setInterval(tique, 1000);
+}
+
+/* =======================================================================
+   SUBMISSÃO
+   ======================================================================= */
+function confirmarSubmissao(){
+  var faltam = ITENS.filter(function(it){ return !respondido(it); });
+  var aviso = ENSAIO
+    ? 'Vai terminar o ensaio e ver a correcção. Pode repetir depois.'
+    : 'Depois de submeter não poderá alterar as respostas.';
+  if(faltam.length){
+    aviso = 'Ainda tem ' + faltam.length + ' pergunta(s) por responder.\n\n' + aviso;
+  }
+  if(!confirm(aviso + '\n\nConfirma a submissão?')) return;
+  submeter();
+}
+
+function submeter(){
+  var respostas = {};
+  ITENS.forEach(function(it){
+    respostas[it.id] = { texto: serializar(it, RESP[it.id]), dados: RESP[it.id] };
+  });
+  q('btn-submeter').disabled = true;
+  if(TIMER) clearInterval(TIMER);
+  mostrar('loading');
+  q('loading-texto').textContent = 'A submeter e a corrigir a prova…';
+  Servidor.submeter(respostas, function(res){
+    if(!res.ok){
+      alert(res.erro); mostrar('tela-prova'); q('btn-submeter').disabled = false; return;
+    }
+    try{ localStorage.removeItem(CHAVE_RASCUNHO); }catch(e){}
+    if(res.demo){
+      q('nota-final').textContent = '—';
+      q('nota-final').className = 'nota-grande';
+      q('nota-detalhe').textContent = 'Modo de demonstração: nada foi guardado. Abaixo, as respostas tal como seriam enviadas ao servidor.';
+      var pre = q('resumo-demo'); pre.textContent = res.resumo; pre.classList.remove('hidden');
+      mostrar('tela-resultado');
+      return;
+    }
+    mostrarResultado(res);
+  }, erroGenerico);
+}
+
+function mostrarResultado(res){
+  var nota20 = res.nota20;
+  var e = q('nota-final');
+  e.textContent = nota20 + ' / 20';
+  e.className = 'nota-grande ' + (nota20 >= 14 ? 'aprovado' : (nota20 >= 10 ? 'medio' : 'reprovado'));
+  q('titulo-resultado').textContent = res.ensaio ? 'Ensaio concluído' : 'Prova submetida';
+  q('nota-detalhe').textContent = (res.notaTotal !== undefined)
+    ? ('Pontuação bruta: ' + res.notaTotal + ' / ' + res.notaMax + ' pontos'
+       + (res.foraDePrazo ? ' · submetida fora do prazo' : '')
+       + (res.ensaio ? ' · resultado de treino, não conta para a avaliação' : ''))
+    : 'Esta prova já tinha sido realizada.';
+
+  var caixa = q('detalhe-resultado');
+  caixa.innerHTML = '';
+  if(res.detalhe && res.detalhe.length){
+    caixa.appendChild(el('h3', null, 'Pontuação por pergunta'));
+    var scroll = el('div','tab-wrap');
+    var tabela = el('table','resp resultado');
+    var thead = el('thead'), trh = el('tr');
+    ['Parte','Questão','Pergunta','Pontos'].forEach(function(t){ trh.appendChild(el('th', null, t)); });
+    thead.appendChild(trh); tabela.appendChild(thead);
+    var tbody = el('tbody');
+    res.detalhe.forEach(function(d){
+      var tr = el('tr');
+      var td1 = el('td', null, d.parte); td1.setAttribute('data-rotulo','Parte'); tr.appendChild(td1);
+      var td2 = el('td', null, d.questao + ' ' + d.alinea); td2.setAttribute('data-rotulo','Questão'); tr.appendChild(td2);
+      var td3 = el('td', null, d.enunciado); td3.setAttribute('data-rotulo','Pergunta'); tr.appendChild(td3);
+      var td4 = el('td','pontos-cel', d.pontos + ' / ' + d.max);
+      td4.setAttribute('data-rotulo','Pontos');
+      if(d.pontos >= d.max) td4.classList.add('cheio');
+      else if(d.pontos === 0) td4.classList.add('zero');
+      tr.appendChild(td4);
+      tbody.appendChild(tr);
+    });
+    tabela.appendChild(tbody);
+    scroll.appendChild(tabela);
+    caixa.appendChild(scroll);
+    caixa.appendChild(el('p','sub','A correcção é automática. Se discordar de alguma pontuação, fale com o docente.'));
+  }
+  mostrar('tela-resultado');
+}
+
+function erroGenerico(err){
+  alert('Ocorreu um erro: ' + (err && err.message ? err.message : err));
+  mostrar('tela-login');
+}
+
+/* aviso ao fechar durante a prova */
+window.addEventListener('beforeunload', function(e){
+  if(!q('tela-prova').classList.contains('hidden')){
+    e.preventDefault(); e.returnValue = '';
+  }
+});
+
+if(DEMO){ q('fita-demo').classList.remove('hidden'); }
+</script>
+</body>
+</html>

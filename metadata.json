@@ -1,0 +1,6 @@
+{
+  "name": "Sistema de Provas Online - Gestão Estratégica",
+  "description": "Sistema completo de avaliação com exames práticos (SWOT, PESTEL, GUT, SMART, 5W2H, Rede PERT), cronómetro, correcção automática e painel docente.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
